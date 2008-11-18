@@ -1,0 +1,20 @@
+URxvt.termName                  : rxvt
+URxvt.saveLines                 : 8096
+urxvt.visualBell                        : True
+URxvt.background: black
+URxvt.foreground: AntiqueWhite
+URxvt.scrollBar: on
+#URxvt.inheritPixmap:            True
+#URxvt.transparent:              False
+#URxvt.tintColor:                Black
+#URxvt.shading:          30
+#URxvt.fading: 40
+URxvt.urlLauncher:   firefox
+URxvt.perl-ext:  default,matcher
+#URxvt.perl-ext-common:   mark-urls
+URxvt.font: xft:DejaVu Sans Mono-14
+URxvt.urlLauncher:        sensible-browser
+URxvt.matcher.button:     1
+URxvt.matcher.pattern.1:  \\bwww\\.[\\w-]+\\.[\\w./?&@#-]*[\\w/-]
+URxvt.matcher.pattern.2:  \\B(/\\S+?):(\\d+)(?=:|$)
+URxvt.matcher.launcher.2: gvim +$2 $1
