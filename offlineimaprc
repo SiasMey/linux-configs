@@ -1,0 +1,203 @@
+# Sample configuration file
+# Copyright (C) 2002-2005 John Goerzen
+# <jgoerzen@complete.org>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Looking for a quick start?  Take a look at offlineimap.conf.minimal.
+
+
+##################################################
+# General definitions
+##################################################
+
+[general]
+
+# This specifies where offlineimap is to store its metadata.
+# This directory will be created if it does not already exist.
+
+metadata = ~/.offlineimap
+
+# This variable specifies which accounts are defined.  Separate them
+# with commas.  Account names should be alphanumeric only.
+# You will need to specify one section per account below.  You may
+# not use "general" for an account name.
+#
+
+accounts = CPData, PCINN
+
+# Offlineimap can synchronize more the one account at a time.  If you
+# want to enable this feature, set the below value to something
+# greater than 1.  To force it to synchronize only one account at a
+# time, set it to 1.
+#
+
+maxsyncaccounts = 3
+
+# You can specify one or more user interface modules for OfflineIMAP
+# to use.  OfflineIMAP will try the first in the list, and if it
+# fails, the second, and so forth.
+#
+# The pre-defined options are:
+# Curses.Blinkenlights -- A text-based (terminal) interface similar to
+# Tk.Blinkenlights
+# TTY.TTYUI -- a text-based (terminal) interface
+# Noninteractive.Basic -- Noninteractive interface suitable for cronning
+# Noninteractive.Quiet -- Noninteractive interface, generates no output
+#                         except for errors.
+# Machine.MachineUI -- Interactive interface suitable for machine
+#                      parsing.
+#
+# You can override this with a command-line option -u.
+
+#ui = Curses.Blinkenlights, TTY.TTYUI, Noninteractive.Basic, Noninteractive.Quiet
+ui = Noninteractive.Quiet
+
+# If you try to synchronize messages to a read-only folder,
+# OfflineIMAP will generate a warning.  If you want to suppress these
+# warnings, set ignore-readonly to yes.  Read-only IMAP folders allow
+# reading but not modification, so if you try to change messages in
+# the local copy of such a folder, the IMAP server will prevent
+# OfflineIMAP from propogating those changes to the IMAP server.
+
+ignore-readonly = no
+
+########## Advanced settings
+
+# You can give a Python source filename here and all config file
+# python snippets will be evaluated in the context of that file.
+# This allows you to e.g. define helper functions in the Python
+# source file and call them from this config file.  You can find
+# an example of this in the manual.
+#
+# pythonfile = ~/.offlineimap.py
+#
+
+# By default, OfflineIMAP will not exit due to a network error until
+# the operating system returns an error code.  Operating systems can sometimes
+# take forever to notice this.  Here you can activate a timeout on the
+# socket.  This timeout applies to individual socket reads and writes,
+# not to an overall sync operation.  You could perfectly well have a 30s
+# timeout here and your sync still take minutes.
+#
+# Values in the 30-120 second range are reasonable.
+#
+# The default is to have no timeout beyond the OS.  Times are given in seconds.
+#
+# socktimeout = 60
+
+##################################################
+# Mailbox name recorder
+##################################################
+
+[mbnames]
+enabled = 1
+filename = ~/Mutt/mailboxes
+header = "mailboxes "
+peritem = "+%(accountname)s/%(foldername)s"
+sep = " "
+footer = "\n"
+
+# You can also specify a folderfilter.  It will apply to the
+# *translated* folder name here, and it takes TWO arguments:
+# accountname and foldername.  In all other ways, it will
+# behave identically to the folderfilter for accounts.  Please see
+# that section for more information and examples.
+#
+# Note that this filter can be used only to further restrict mbnames
+# to a subset of folders that pass the account's folderfilter.
+
+[ui.Curses.Blinkenlights]
+# Character used to indicate thread status.
+
+statuschar = #
+
+##################################################
+# Accounts
+##################################################
+
+# This is an account definition clause.  You'll have one of these
+# for each account listed in general/accounts above.
+
+[Account PCINN]
+localrepository = localPCINN
+remoterepository = remotePCINN
+presynchook = imapfilter -c .imapfilter/pcinn.lua
+#still working on these might implement as a shell script
+#they should refresh the list of mailboxes that mailcheck works with
+#postsynchook = `sed 's/mailboxes "//; s/"$//; s:+:.IMAP/:g; s/" "/\n/g;' Mutt/mailboxes > .mailcheckrc`
+autorefresh = 5
+quick = 5
+
+[Repository localPCINN]
+type = Maildir
+localfolders = ~/.IMAP/PCINN
+sep = /
+restoreatime = no
+
+[Repository remotePCINN]
+type = IMAP
+remotehost = xxxxxxxxxxxx
+ssl = no
+remoteuser = xxxxxxxxxxxx
+remotepass = xxxxxxxxxxxx
+maxconnections = 3
+holdconnectionopen = no
+folderfilter = lambda foldername: not re.search('(Sent\.2|Archive|Affinity|DialDynamics|Affinity reports)', foldername)
+
+[Account CPData]
+localrepository = localCPDATA
+remoterepository = remoteCPDATA
+presynchook = imapfilter -c .imapfilter/cpdata.lua
+#still working on these might implement as a shell script
+#they should refresh the list of mailboxes that mailcheck works with
+#postsynchook = `sed 's/mailboxes "//; s/"$//; s:+:.IMAP/:g; s/" "/\n/g;' Mutt/mailboxes > .mailcheckrc`
+autorefresh = 5
+quick = 5
+
+[Repository localCPDATA]
+type = Maildir
+localfolders = ~/.IMAP/CPData
+sep = /
+
+[Repository remoteCPDATA]
+type = IMAP
+remotehost = xxxxxxxxxxxx
+ssl = no
+remoteuser = xxxxxxxxxxxx
+remotepass = xxxxxxxxxxxx
+maxconnections = 3
+holdconnectionopen = no
+folderfilter = lambda foldername: not re.search('(Sent\.2|Archive)', foldername)
+
+[Account gmail]
+localrepository = localGMail
+remoterepository = remoteGMail
+autorefresh = 5
+quick = 5
+
+[Repository localGMail]
+type = Maildir
+localfolders = ~/.IMAP/gmail
+sep = /
+restoreatime = yes
+
+[Repository remoteGMail]
+type = Gmail
+remoteuser = xxxxxxxxxxxx
+remotepass = xxxxxxxxxxxx
+maxconnections = 3
+realdelete = no
+folderfilter = lambda foldername: not re.search('(Spam)', foldername)

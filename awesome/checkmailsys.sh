@@ -7,4 +7,5 @@ if [ -z "$pid" ]; then
   #offlineimap &
 fi
 
+sed 's/mailboxes "//; s/"$//; s:+:.IMAP/:g; s/" "/\n/g;' Mutt/mailboxes > .mailcheckrc
 mailcheck -cb | sed 's:.IMAP/\(.*\)/INBOX:\1:; s:new message(s)$::'
