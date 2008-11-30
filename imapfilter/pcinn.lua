@@ -10,17 +10,30 @@ options.subscribe = true
 --  Accounts  --
 ----------------
 
-account = IMAP {
-}
 
 -----------------
 --  Mailboxes  --
 -----------------
 
+---------------------
+-- archive service --
+---------------------
+
+month = os.date("%m") - 1;
+year = os.date("%Y");
+
+if (month == 0) then
+  month = 1;
+  year = year - 1;
+end
+
+archive = "Archive/".. year .. "/" .. month;
+
 result = account.INBOX:is_older(30)
 account.INBOX:mark_seen(result)
-account.INBOX:move_messages(account.Archive, result)
+account.INBOX:move_messages(account[archive], result)
 
+--DD mail
 result = account.INBOX:contain_from('@dialdynamics.co.za')
 account.INBOX:move_messages(account['DialDynamics'], result)
 

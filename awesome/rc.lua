@@ -1,6 +1,24 @@
 -- Include awesome libraries, with lots of useful function!
 require("awful")
 require("beautiful")
+require('naughty')
+
+--naughty.config.timeout          = 5
+--naughty.config.screen           = 1
+--naughty.config.position         = "top_right"
+--naughty.config.margin           = 4
+--naughty.config.height           = 16
+--naughty.config.width            = 300
+--naughty.config.gap              = 1
+--naughty.config.ontop            = true
+--naughty.config.font             = beautiful.font or "Verdana 8"
+--naughty.config.icon             = nil
+--naughty.config.icon_size        = 16
+naughty.config.fg               = beautiful.fg_focus or '#ffffff'
+naughty.config.bg               = beautiful.bg_focus or '#535d6c'
+naughty.config.border_color     = beautiful.border_focus or '#535d6c'
+naughty.config.border_width     = 1
+--naughty.config.hover_timeout    = nil
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -13,7 +31,7 @@ theme_path = "/usr/local/share/awesome/themes/gigamos/theme"
 beautiful.init(theme_path)
 
 -- This is used later as the default terminal and editor to run.
-terminal = "urxvt"
+terminal = "urxvtc"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -35,7 +53,7 @@ layouts =
 --    "fairv",
     "magnifier",
     "max",
---    "fullscreen",
+    "fullscreen",
 --    "spiral",
 --    "dwindle",
     "floating"
@@ -61,6 +79,9 @@ apptags =
 {
     ["Pidgin"] = { screen = 1, tag = 8 },
     ["Skype.real"] = { screen = 1, tag = 9 },
+    ["xine"] = { screen = 1, tag = 5 },
+    ["rhythmbox"] = { screen = 1, tag = 6 },
+    ["banshee-1"] = { screen = 1, tag = 6 },
     ["com.sun.javaws.Main"] = { screen = 1, tag = 4 },
 }
 
@@ -80,6 +101,8 @@ tagdeffunctions = {
   [2] = terminal,
   [3] = "firefox",
   [4] = "batclient",
+  [5] = "xine",
+  [6] = "banshee-1",
   [8] = "pidgin",
   [9] = "skype"
 }
@@ -104,27 +127,15 @@ tags[1][3] = tag({ name = "www", layout = "tile" })
 tags[1][3].mwfact = 0.8
 tags[1][3].screen = 1
 
-tags[1][4] = tag({ name = "batmud", layout = "tile" })
+tags[1][4] = tag({ name = "batmud", layout = "max" })
 tags[1][4].mwfact = 0.9
 tags[1][4].screen = 1
 
-for s = 2, screen.count() do
-    -- Each screen has its own tag table.
-    tags[s] = {}
-    -- Create 9 tags per screen.
-    for tagnumber = 1, 9 do
-        tags[s][tagnumber] = tag({ name = tagnumber, layout = layouts[1] })
-        -- Add tags to screen one by one
-        tags[s][tagnumber].screen = s
-    end
-    -- I'm sure you want to see at least one tag.
-end
+tags[1][5] = tag({ name = "video", layout = "fullscreen" })
+tags[1][5].screen = 1
 
-for tagnumber = 5, 6 do
-    tags[1][tagnumber] = tag({ name = tagnumber, layout = layouts[1] })
-    -- Add tags to screen one by one
-    tags[1][tagnumber].screen = 1
-end
+tags[1][6] = tag({ name = "music", layout = "max" })
+tags[1][6].screen = 1
 
 tags[1][7] = tag({ name = "conversation", layout = "tile" })
 tags[1][7].mwfact = 0.5
@@ -139,6 +150,19 @@ tags[1][9].mwfact = 0.3
 tags[1][9].screen = 1
 
 tags[1][1].selected = true
+
+for s = 2, screen.count() do
+    -- Each screen has its own tag table.
+    tags[s] = {}
+    -- Create 9 tags per screen.
+    for tagnumber = 1, 9 do
+        tags[s][tagnumber] = tag({ name = tagnumber, layout = layouts[1] })
+        -- Add tags to screen one by one
+        tags[s][tagnumber].screen = s
+    end
+    -- I'm sure you want to see at least one tag.
+end
+
 -- }}}
 
 -- {{{ Wibox
@@ -146,6 +170,11 @@ tags[1][1].selected = true
 mytextbox = widget({ type = "textbox", align = "right" })
 -- Set the default text in textbox
 mytextbox.text = "<b><small> " .. AWESOME_RELEASE .. " </small></b>"
+
+-- Create a textbox widget for the Battery Status
+mybatterybox = widget({ type = "textbox", align = "right" })
+-- Set the default text in textbox
+mybatterybox.text = "<b><small> " .. AWESOME_RELEASE .. " </small></b>"
 
 -- Create a laucher widget and a main menu
 myawesomemenu = {
@@ -208,6 +237,7 @@ for s = 1, screen.count() do
                            mytaglist[s],
                            mytasklist[s],
                            mypromptbox[s],
+                           mybatterybox,
                            mytextbox,
                            mylayoutbox[s],
                            s == 1 and mysystray or nil }
@@ -539,5 +569,72 @@ awful.hooks.timer.register(1, function ()
     mytextbox.text = " " .. os.date() .. " "
 end)
 
+function hook_battery()
+    mybatterybox.text = " Battery : " .. get_acpibatt() .. " "
+end
+
+-- {{{ Statusbar battery
+--
+function get_acpibatt()
+
+    local f = io.popen('acpi -b', 'r')
+    if not f then
+      return "acpi -b failed"
+    end
+
+    local s = f:read('*l')
+    f:close()
+    if not s then
+      return '-';
+    end
+
+    -- Battery 0: Discharging, 89%, 00:02:14 remaining
+    -- Battery 0: Charging, 58%, 00:02:14 until charged
+    -- Battery 0: Full, 100%
+    -- so find the first bit first and then go look for the time
+    local st, en, status, percent = string.find(s, '%a+%s%d:%s(%a+),%s(%d+%%)');
+    local st, en, time = string.find(s, ',%s(%d+:%d+:%d+)%s%a+', en);
+
+    if not status or not percent then -- time can be empty if we're full
+      return "couldn't parse line " .. s
+    end
+
+    if not time then
+      return percent
+    end
+
+--    if status == 'Charging' then
+--      status = 'c';
+--    elseif status == 'Discarching' then
+--      status = 'd';
+--    else
+--      status = '-';
+--    end
+
+    return percent .. ' (' .. status .. ')' .. ' ' .. time .. ' left';
+end
+-- }}}
+
+-- {{{ check mail stack
+--
+function checkmail()
+
+    local f = io.popen('~/checkmailsys.sh', 'r')
+    if not f then
+      naught.notify({ text="checkmailsys failed" });
+    end
+
+    local s = f:read('*a');
+    f:close();
+    if s then
+      naughty.notify({ text=s });
+    end
+end
+-- }}}
+
+-- Set up some hooks
+awful.hooks.timer.register(5, hook_battery)
+awful.hooks.timer.register(240, checkmail)
+-- }}}
 
 -- }}}

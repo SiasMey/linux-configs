@@ -1,20 +1,86 @@
-URxvt.termName                  : rxvt
-URxvt.saveLines                 : 8096
-urxvt.visualBell                        : True
-URxvt.background: black
-URxvt.foreground: AntiqueWhite
-URxvt.scrollBar: on
-#URxvt.inheritPixmap:            True
-#URxvt.transparent:              False
-#URxvt.tintColor:                Black
-#URxvt.shading:          30
-#URxvt.fading: 40
-URxvt.urlLauncher:   firefox
-URxvt.perl-ext:  default,matcher
-#URxvt.perl-ext-common:   mark-urls
-URxvt.font: xft:DejaVu Sans Mono-14
-URxvt.urlLauncher:        sensible-browser
-URxvt.matcher.button:     1
-URxvt.matcher.pattern.1:  \\bwww\\.[\\w-]+\\.[\\w./?&@#-]*[\\w/-]
-URxvt.matcher.pattern.2:  \\B(/\\S+?):(\\d+)(?=:|$)
-URxvt.matcher.launcher.2: gvim +$2 $1
+Xft.dpi:                 96
+Xft.antialias:           true
+Xft.hinting:             true
+Xft.hintstyle:           hintfull
+Xft.rgba:                rgb
+
+xmessage*font:                 -*-clean-*-*-*-*-*-120-*-*-*-*-iso8859-1
+xmessage*Scrollbar.width:       1
+xmessage*Scrollbar.borderWidth: 0
+
+!-------------
+!   URxvt
+!-------------
+
+! Colours
+URxvt*foreground:       #BBBBBB
+! URxvt*foreground:       #FFFFFF
+URxvt*background:       #191919
+
+URxvt*colorBD:          #EEEEEF
+
+! Black
+URxvt*color0:           #404040
+URxvt*color8:           #252525
+! Red
+URxvt*color1:           #C12121
+URxvt*color9:           #E50E0E
+! Green
+URxvt*color2:           #75BD00
+URxvt*color10:          #89b83f
+! Yellow
+URxvt*color3:           #EDD76A
+URxvt*color11:          #efef60
+! Blue
+URxvt*color4:           #4F6FAE
+URxvt*color12:          #3F6FD0
+! Magenta
+URxvt*color5:           #706c9a
+URxvt*color13:          #826ab1
+! Cyan
+URxvt*color6:           #508695
+URxvt*color14:          #a1cdcd
+! White
+URxvt*color7:           #BBBBBB
+URxvt*color15:          #EEEEEF
+
+! Settings
+URxvt*termName:             rxvt
+URxvt*loginShell:           true
+URxvt*scrollBar:            false
+URxvt*saveLines:            10000
+!URxvt*font:                -dec-terminal-medium-r-normal-*-*-140-*-*-c-*-iso8859-1
+URxvt*font:                 xft:DejaVu Sans Mono-14
+
+URxvt*shading:              +10
+!URxvt*geometry:             105x50+75+0
+URxvt*internalBorder:       0
+!UURxvt*perl-ext-common:      default,matcher
+URxvt*colorUL:              white
+URxvt*urlLauncher:          x-www-browser
+URxvt*matcher.button:       1
+URxvt*cursorUnderline:      false
+!URxvt*boldFont:             -dec-terminal-medium-r-bold-*-*-140-*-*-c-*-iso8859-1
+URxvt*scrollTtyOutput:      false
+URxvt*scrollTtyKeypress:    true
+URxvt*scrollKey:            true
+URxvt*scrollWithBuffer:     false
+
+!-------------
+!   Vim
+!-------------
+
+Vim*useSchemes:         all
+Vim*sgiMode:            true
+Vim*useEnhancedFSB:     true
+Vim.foreground:         Black
+! Vim.background:        lightyellow2
+Vim*background:         white
+! Do NOT use Vim*geometry , this will break the menus instead 
+! use Vim.geometry. Asterisk between Vim and geometry is not allowed.
+! Vim.geometry: widthxheight
+Vim.geometry:           88x40
+!Vim*font:              -misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-15-*5
+Vim*menuBackground: yellow
+Vim*menuForeground: black
+
